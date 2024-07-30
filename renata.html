@@ -1,0 +1,109 @@
+let pontuacaoEsquerda = 0;
+let pontuacaoDireita = 0;
+
+let bolaX, bolaY;
+let velocidadeBolaX = 3;
+let velocidadeBolaY = 3;
+let diametroBola = 20;
+
+let raqueteEsquerdaX, raqueteEsquerdaY;
+let raqueteDireitaX, raqueteDireitaY;
+let larguraRaquete = 20;
+let alturaRaquete = 100;
+let velocidadeRaquete = 5;
+
+function setup() {
+  createCanvas(600, 400);
+  resetarBola();
+  
+  raqueteEsquerdaX = 0;
+  raqueteEsquerdaY = height / 2 - alturaRaquete / 2;
+  
+  raqueteDireitaX = width - larguraRaquete;
+  raqueteDireitaY = height / 2 - alturaRaquete / 2;
+}
+
+function draw() {
+  background(0);
+  desenharBola();
+  moverBola();
+  verificarColisaoBola();
+  
+  desenharRaquetes();
+  moverRaquetes();
+  
+  desenharPontuacao();
+}
+
+function resetarBola() {
+  bolaX = width / 2;
+  bolaY = height / 2;
+  velocidadeBolaX = 3 * (random(1) < 0.5 ? 1 : -1);
+  velocidadeBolaY = 3 * (random(1) < 0.5 ? 1 : -1);
+}
+
+function desenharBola() {
+  ellipse(bolaX, bolaY, diametroBola, diametroBola);
+}
+
+function moverBola() {
+  bolaX += velocidadeBolaX;
+  bolaY += velocidadeBolaY;
+  
+  if (bolaY < 0 || bolaY > height) {
+    velocidadeBolaY *= -1;
+  }
+  
+  if (bolaX < 0) {
+    pontuacaoDireita++;
+    resetarBola();
+  }
+  
+  if (bolaX > width) {
+    pontuacaoEsquerda++;
+    resetarBola();
+  }
+}
+
+function verificarColisaoBola() {
+  // Verifica colisão com a raquete esquerda
+  if (bolaX - diametroBola / 2 < raqueteEsquerdaX + larguraRaquete && 
+      bolaY > raqueteEsquerdaY && 
+      bolaY < raqueteEsquerdaY + alturaRaquete) {
+    bolaX = raqueteEsquerdaX + larguraRaquete + diametroBola / 2;  // Corrige posição da bola
+    velocidadeBolaX *= -1;
+  }
+  
+  // Verifica colisão com a raquete direita
+  if (bolaX + diametroBola / 2 > raqueteDireitaX && 
+      bolaY > raqueteDireitaY && 
+      bolaY < raqueteDireitaY + alturaRaquete) {
+    bolaX = raqueteDireitaX - diametroBola / 2;  // Corrige posição da bola
+    velocidadeBolaX *= -1;
+  }
+}
+
+function desenharRaquetes() {
+  rect(raqueteEsquerdaX, raqueteEsquerdaY, larguraRaquete, alturaRaquete);
+  rect(raqueteDireitaX, raqueteDireitaY, larguraRaquete, alturaRaquete);
+}
+
+function moverRaquetes() {
+  raqueteEsquerdaY = mouseY - alturaRaquete / 2;
+  raqueteEsquerdaY = constrain(raqueteEsquerdaY, 0, height - alturaRaquete);
+
+  // Movimento automático para a raquete direita para tornar o jogo mais interessante.
+  if (bolaY > raqueteDireitaY + alturaRaquete / 2 && raqueteDireitaY < height - alturaRaquete) {
+    raqueteDireitaY += velocidadeRaquete;
+  }
+  if (bolaY < raqueteDireitaY + alturaRaquete / 2 && raqueteDireitaY > 0) {
+    raqueteDireitaY -= velocidadeRaquete;
+  }
+}
+
+function desenharPontuacao() {
+  textSize(32);
+  fill(255);
+  text(pontuacaoEsquerda, width / 4, 50);
+  text(pontuacaoDireita, 3 * width / 4, 50);
+}
